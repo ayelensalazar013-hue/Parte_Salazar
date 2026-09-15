@@ -1,0 +1,7 @@
+{
+  "method": "GET",
+  "url": "http://localhost:8055/items/core_personas",
+  "headers": {
+    "Authorization": "Bearer <TOKEN>"
+  }
+}
