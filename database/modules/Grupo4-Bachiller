@@ -1,1 +1,162 @@
+CREATE TABLE `colegio` (
+  `CUE` varchar(20) NOT NULL,
+  `Nombre_Colegio` varchar(100) DEFAULT NULL,
+  `Direccion` varchar(100) DEFAULT NULL,
+  `Telefono` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`CUE`)
+);
 
+CREATE TABLE `regente` (
+  `DNI_Nombre` varchar(20) NOT NULL,
+  `Nombre` varchar(50) DEFAULT NULL,
+  `Apellido` varchar(50) DEFAULT NULL,
+  `Correo` varchar(100) DEFAULT NULL,
+  `CUE` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`DNI_Nombre`),
+  KEY `CUE` (`CUE`),
+  CONSTRAINT `regente_ibfk_1` FOREIGN KEY (`CUE`) REFERENCES `colegio` (`CUE`)
+);
+
+CREATE TABLE `secretaria` (
+  `ID_Secretaria` int(11) NOT NULL AUTO_INCREMENT,
+  `Nombre` varchar(50) DEFAULT NULL,
+  `Contraseña` varchar(50) DEFAULT NULL,
+  `Rol` varchar(50) DEFAULT NULL,
+  `DNI_Nombre` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`ID_Secretaria`),
+  KEY `DNI_Nombre` (`DNI_Nombre`),
+  CONSTRAINT `secretaria_ibfk_1` FOREIGN KEY (`DNI_Nombre`) REFERENCES `regente` (`DNI_Nombre`)
+);
+
+CREATE TABLE `preceptor` (
+  `DNI_Preceptor` varchar(20) NOT NULL,
+  `Nombre` varchar(50) DEFAULT NULL,
+  `Apellido` varchar(50) DEFAULT NULL,
+  `Correo_Notificacion` varchar(100) DEFAULT NULL,
+  `DNI_Nombre` varchar(20) DEFAULT NULL,
+  `ID_Secretaria` int(11) DEFAULT NULL,
+  PRIMARY KEY (`DNI_Preceptor`),
+  KEY `DNI_Nombre` (`DNI_Nombre`),
+  KEY `ID_Secretaria` (`ID_Secretaria`),
+  CONSTRAINT `preceptor_ibfk_1` FOREIGN KEY (`DNI_Nombre`) REFERENCES `regente` (`DNI_Nombre`),
+  CONSTRAINT `preceptor_ibfk_2` FOREIGN KEY (`ID_Secretaria`) REFERENCES `secretaria` (`ID_Secretaria`)
+);
+
+CREATE TABLE `registro` (
+  `ID_Registro` int(11) NOT NULL AUTO_INCREMENT,
+  `Fecha` date DEFAULT NULL,
+  `Hora_Ingreso` time DEFAULT NULL,
+  `DNI_Preceptor` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`ID_Registro`),
+  KEY `DNI_Preceptor` (`DNI_Preceptor`),
+  CONSTRAINT `registro_ibfk_1` FOREIGN KEY (`DNI_Preceptor`) REFERENCES `preceptor` (`DNI_Preceptor`)
+);
+
+CREATE TABLE `estado_inasistencia` (
+  `ID_Estado_Inasistencia` int(11) NOT NULL AUTO_INCREMENT,
+  `Tipo_Estado` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`ID_Estado_Inasistencia`)
+);
+
+CREATE TABLE `falta` (
+  `ID_Falta` int(11) NOT NULL AUTO_INCREMENT,
+  `Tipo_Falta` varchar(50) DEFAULT NULL,
+  `Total_Falta` int(11) DEFAULT NULL,
+  `Limite_Falta` int(11) DEFAULT NULL,
+  `ID_Registro` int(11) DEFAULT NULL,
+  `ID_Estado_Inasistencia` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID_Falta`),
+  KEY `ID_Registro` (`ID_Registro`),
+  KEY `ID_Estado_Inasistencia` (`ID_Estado_Inasistencia`),
+  CONSTRAINT `falta_ibfk_1` FOREIGN KEY (`ID_Registro`) REFERENCES `registro` (`ID_Registro`),
+  CONSTRAINT `falta_ibfk_2` FOREIGN KEY (`ID_Estado_Inasistencia`) REFERENCES `estado_inasistencia` (`ID_Estado_Inasistencia`)
+);
+
+CREATE TABLE `curso` (
+  `ID_Curso` int(11) NOT NULL AUTO_INCREMENT,
+  `Año` varchar(10) DEFAULT NULL,
+  `Division` varchar(10) DEFAULT NULL,
+  `Turno` varchar(20) DEFAULT NULL,
+  `ID_Secretaria` int(11) DEFAULT NULL,
+  `ID_Preceptor` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`ID_Curso`),
+  KEY `ID_Secretaria` (`ID_Secretaria`),
+  KEY `ID_Preceptor` (`ID_Preceptor`),
+  CONSTRAINT `curso_ibfk_1` FOREIGN KEY (`ID_Secretaria`) REFERENCES `secretaria` (`ID_Secretaria`),
+  CONSTRAINT `curso_ibfk_2` FOREIGN KEY (`ID_Preceptor`) REFERENCES `preceptor` (`DNI_Preceptor`)
+);
+
+CREATE TABLE `aula` (
+  `ID_Aula` int(11) NOT NULL AUTO_INCREMENT,
+  `Numero_Aula` varchar(10) DEFAULT NULL,
+  `Capacidad` int(11) DEFAULT NULL,
+  `ID_Curso` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID_Aula`),
+  KEY `ID_Curso` (`ID_Curso`),
+  CONSTRAINT `aula_ibfk_1` FOREIGN KEY (`ID_Curso`) REFERENCES `curso` (`ID_Curso`)
+);
+
+CREATE TABLE `profesor` (
+  `DNI_Profesor` varchar(20) NOT NULL,
+  `Nombre` varchar(50) DEFAULT NULL,
+  `Apellido` varchar(50) DEFAULT NULL,
+  `Correo` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`DNI_Profesor`)
+);
+
+CREATE TABLE `materia` (
+  `ID_Materia` int(11) NOT NULL AUTO_INCREMENT,
+  `Nombre_Materia` varchar(100) DEFAULT NULL,
+  `Año_Perteneciente` varchar(10) DEFAULT NULL,
+  `DNI_Profesor` varchar(20) DEFAULT NULL,
+  `ID_Aula` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID_Materia`),
+  KEY `DNI_Profesor` (`DNI_Profesor`),
+  KEY `ID_Aula` (`ID_Aula`),
+  CONSTRAINT `materia_ibfk_1` FOREIGN KEY (`DNI_Profesor`) REFERENCES `profesor` (`DNI_Profesor`),
+  CONSTRAINT `materia_ibfk_2` FOREIGN KEY (`ID_Aula`) REFERENCES `aula` (`ID_Aula`)
+);
+
+CREATE TABLE `tutor` (
+  `DNI_Tutor` varchar(20) NOT NULL,
+  `Nombre` varchar(50) DEFAULT NULL,
+  `Apellido` varchar(50) DEFAULT NULL,
+  `Telefono_Contacto` varchar(50) DEFAULT NULL,
+  `Correo` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`DNI_Tutor`)
+);
+
+CREATE TABLE `obra_social_prepaga` (
+  `ID_Obra_Social_Prepaga` int(11) NOT NULL AUTO_INCREMENT,
+  `Telefono_Emergencia` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`ID_Obra_Social_Prepaga`)
+);
+
+CREATE TABLE `alumno` (
+  `DNI_Alumno` varchar(20) NOT NULL,
+  `Nombre` varchar(50) DEFAULT NULL,
+  `Apellido` varchar(50) DEFAULT NULL,
+  `ID_Registro` int(11) DEFAULT NULL,
+  `ID_Curso` int(11) DEFAULT NULL,
+  `ID_Obra_Social_Prepaga` int(11) DEFAULT NULL,
+  `DNI_Tutor` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`DNI_Alumno`),
+  KEY `ID_Registro` (`ID_Registro`),
+  KEY `ID_Curso` (`ID_Curso`),
+  KEY `ID_Obra_Social_Prepaga` (`ID_Obra_Social_Prepaga`),
+  KEY `DNI_Tutor` (`DNI_Tutor`),
+  CONSTRAINT `alumno_ibfk_1` FOREIGN KEY (`ID_Registro`) REFERENCES `registro` (`ID_Registro`),
+  CONSTRAINT `alumno_ibfk_2` FOREIGN KEY (`ID_Curso`) REFERENCES `curso` (`ID_Curso`),
+  CONSTRAINT `alumno_ibfk_3` FOREIGN KEY (`ID_Obra_Social_Prepaga`) REFERENCES `obra_social_prepaga` (`ID_Obra_Social_Prepaga`),
+  CONSTRAINT `alumno_ibfk_4` FOREIGN KEY (`DNI_Tutor`) REFERENCES `tutor` (`DNI_Tutor`)
+);
+
+CREATE TABLE `ficha_medica` (
+  `ID_Ficha` int(11) NOT NULL AUTO_INCREMENT,
+  `Alergias_Condiciones` text DEFAULT NULL,
+  `Grupo_Sanguineo` varchar(10) DEFAULT NULL,
+  `DNI_Alumno` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`ID_Ficha`),
+  KEY `DNI_Alumno` (`DNI_Alumno`),
+  CONSTRAINT `ficha_medica_ibfk_1` FOREIGN KEY (`DNI_Alumno`) REFERENCES `alumno` (`DNI_Alumno`)
+);
